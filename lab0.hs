@@ -4,11 +4,12 @@ myHead (x:xs) = x
 
 myReverse :: [a] -> [a]
 myReverse [] = []
-myReverse (x : xs) = myReverse xs ++ [x]
+myReverse xs = foldl(\ys x -> x:ys) []xs
 
 myLast :: [a] -> a
 myLast [] = error "Empty list"
-myLast xs = myHead(myReverse xs)
+myLast [x] = x
+myLast (x:xs) = myLast xs
 
 myTail :: [a] -> [a]
 myTail [] = error "Empty list"
@@ -16,20 +17,23 @@ myTail (x:xs) = xs
 
 myInit :: [a] -> [a]
 myInit [] = error "Empty list"
-myInit xs = myReverse (myTail(myReverse xs))
+myInit [x] = []
+myInit (x:xs) = x : myInit xs 
 
 myLength :: [a] -> Integer
 myLength [] = 0
 myLength (x:xs) = 1 + myLength xs
 
 myAppend :: [a] -> a -> [a]
-myAppend xs x = myReverse (x : myReverse xs)
+myAppend [] y = [y]
+myAppend (x:xs) y = x : myAppend xs y
 
 myNull :: Eq a => [a] -> Bool
 myNull xs = if xs == [] then True else False
 
 myConcat :: [a] -> [a] -> [a]
-myConcat xs ys = xs ++ ys-- foldr(\x xs -> (x:xs)) []xs ++ ys 
+myConcat [] ys = ys
+myConcat (x:xs) ys = x : myConcat xs ys
 
 myTake :: Integer -> [a] -> [a]
 myTake n [] = error "Empty list"
