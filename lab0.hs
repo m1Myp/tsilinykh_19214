@@ -22,8 +22,10 @@ myInit [x] = []
 myInit (x:xs) = x : myInit xs 
 
 myReverse :: [a] -> [a]
-myReverse [] = []
-myReverse xs = foldl(\ys x -> x:ys) []xs
+myReverse xs = myRev [] xs
+    where
+        myRev acc [] = acc
+        myRev acc (x:xs) = myRev (x:acc) xs
 
 --length not optimal
 myLength :: [a] -> Integer
@@ -66,7 +68,8 @@ myFilter test [] = []
 myFilter test (x:xs) = if test x  then x : myFilter test xs else myFilter test xs
 
 myMap :: (a -> a) -> [a] -> [a]
-myMap f xs = foldr (\x ys -> f x : ys) [] xs
+myMap f [] = []
+myMap f (x:xs) = f x : myMap f xs
 
 myZip :: [a] -> [a] -> [(a,a)]
 myZip [] ys = []
