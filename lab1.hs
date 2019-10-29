@@ -25,6 +25,8 @@ stringToDecNum [] = 0
 stringToDecNum (x:xs) = myConvert x * myPow 10 (length (xs)) + stringToDecNum xs 
 
 myFromDec :: Int -> Int -> String
+myFromDec 1 0 = "1"
+myFromDec 1 xs = '1' : myFromDec 1 (xs-1)
 myFromDec base 0 = ""
 myFromDec base 1 = "1"
 myFromDec base xs = myConvert1 (xs `mod` base) : myFromDec base (xs `div` base)
