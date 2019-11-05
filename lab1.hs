@@ -18,9 +18,16 @@ myToDecimal :: Int -> String -> String
 myToDecimal base [] = error "Where is number?"
 myToDecimal base xs = if base > 62 then error "Wrong base" else show $ myToDec base xs
 
+myFromDec :: Int -> Int -> String
+myFromDec 1 xs = replicate (xs + 1) '1'
+--accum
+myFromDec base 0 = ""
+myFromDec base 1 = "1"
+myFromDec base xs = [myConvertBack (xs `mod` base)] ++ myFromDec base (xs `div` base) --Костыль, потом подумаю как убрать, если не зачтёте
+
 myFromDecimal :: Int -> String -> String
 myFromDecimal base [] = error "Where is number?"
---myFromDecimal base xs = if base > 62 then error "Wrong base" else myFromDec base (read xs :: Int)
+myFromDecimal base xs = if base > 62 then error "Wrong base" else myFromDec base (read xs :: Int)
 
 myConvertBtoB :: Int -> Int -> String -> String
 myConvertBtoB fromBase toBase [] = error "Where is number?"
