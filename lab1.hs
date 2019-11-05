@@ -2,7 +2,10 @@ import Data.Char
 import Data.Map
 
 myConvertBack :: Int -> Char
-myConvertBack a = if a >= 0 && a <= 9 then chr (a + 48) else if a>=36 && a<=61 then chr (a + 29) else if a >= 10 && a <= 35 then chr (a + 87) else error "Wrong number"
+myConvertBack a |  a >=  0 &&  a <=  9 = chr (a + ord '0')
+                |  a >= 10 &&  a <= 35 = chr (a + ord 'a' - 10) 
+                |  a >= 36 &&  a <= 61 = chr(a + ord 'A' - 36)
+                | otherwise = error "Wrong Number"
 
 myConvert :: Char -> Int
 myConvert a | ord a >= ord '0' && ord a <= ord '9' = ord a - ord '0'
