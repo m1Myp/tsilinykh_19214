@@ -16,6 +16,7 @@ myConvert a | ord a >= ord '0' && ord a <= ord '9' = ord a - ord '0'
 myToDec :: Int -> String -> Int
 myToDec 1 (x:xs) = length xs
 myToDec base [] =  0
+myToDec base xs = if myConvert x >= base then error "Wrong digit" else myfoldr(\x ys -> (x + ys)*base) [] xs
 			
 myToDecimal :: Int -> String -> String
 myToDecimal base [] = error "Where is number?"
