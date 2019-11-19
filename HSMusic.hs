@@ -1,55 +1,54 @@
+data Song = ToSong {
+	songName :: String
+} deriving (Show, Eq) --В изначале без авторства
+
 data Group = ToGroup {
 	groupName :: String,
-	groupIsFavorite :: Bool
-} deriving (Show, Eq)
-
-data Song = ToSong {
-	songName :: String,
-	songGroup :: Group,
-	songIsFavorite :: Bool
-} deriving (Show, Eq)
+	groupSongs :: [Song]
+} deriving (Show, Eq) --Добавим авторство
 
 data Playlist = ToPlaylist {
 	playlistName :: String,
-	playlistSongs :: [Song],
-	playlistIsFavorite :: Bool
-} deriving (Show, Eq)
+	playlistSongs :: [Song]
+} deriving (Show, Eq) --Объеденим в плейлисты
 
 data User = ToUser {
 	userName :: String,
+	myGroup :: [Group],
 	myPlaylists :: [Playlist],
 	mySongs :: [Song]
-} deriving (Show, Eq)
+} deriving (Show, Eq) --Ета ты
 
 createUser :: String -> User
-createUser name = ToUser name [] []
+createUser name = ToUser name [] [] []
+
+createSong :: String -> Song
+createSong nameSong = ToSong nameSong
 
 createGroup :: String -> Group
-createGroup name = ToGroup name False
+createGroup name = ToGroup name []
 
-createSong :: String -> Group -> Song
-createSong nameSong nameGroup = ToSong nameSong nameGroup False
+addToGroup :: Group -> Song -> Group
+addToGroup nameGroup nameSong = ToGroup (groupName nameGroup) (nameSong : groupSongs nameGroup)
 
 createPlaylist :: String -> Playlist
-createPlaylist namePlaylist = ToPlaylist namePlaylist [] False
+createPlaylist namePlaylist = ToPlaylist namePlaylist []
 	
 addToPlaylist :: Playlist -> Song -> Playlist
-addToPlaylist namePlaylist nameSong = ToPlaylist (playlistName namePlaylist) (nameSong : playlistSongs namePlaylist) False
+addToPlaylist namePlaylist nameSong = ToPlaylist (playlistName namePlaylist) (nameSong : playlistSongs namePlaylist)
 
 addUserSong :: User -> Song -> User
-addUserSong name nameSong = ToUser (userName name) (myPlaylists name) (nameSong : mySongs name)
+addUserSong name nameSong = ToUser (userName name) (myGroup name) (myPlaylists name) (nameSong : mySongs name)
 
 addUserPlaylist :: User -> Playlist -> User
-addUserPlaylist name namePlaylist = ToUser (userName name) (namePlaylist : myPlaylists name) (mySongs name)
-{-
-findMusicByGroup :: Song -> [Song]
+addUserPlaylist name namePlaylist = ToUser (userName name) (myGroup name) (namePlaylist : myPlaylists name) (mySongs name)
 
+addUserGroup :: User -> Group -> User
+addUserGroup name nameGroup = ToUser (userName name) (nameGroup : myGroup name) (myPlaylists name) (mySongs name)
 
-findMusicByPlaylist ::
+findSongByGroup :: Group -> [Song]
+findSongByGroup nameGroup = groupSongs nameGroup
 
-addToFavorite :: 
-
-showFavorite ::
--}
-
+findSongByPlaylist :: Playlist -> [Song]
+findSongByPlaylist namePlaylist = playlistSongs namePlaylist
 
