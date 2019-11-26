@@ -40,8 +40,8 @@ instance (Ord a) => Ord (Quantum a) where
 	(>=) (ToQuantum complexP stringP) (ToQuantum complexP1 stringP1) = complexP >= complexP1
 	(<=) (ToQuantum complexP stringP) (ToQuantum complexP1 stringP1) = complexP <= complexP1
 	
---instance Functor Quantum where
---    fmap func (ToQuantum complexP stringP) = ToQuantum (func complexP) stringP
+myfmap::(Integer->Integer)->Quantum a->Quantum a
+myfmap func (ToQuantum (ToComplex r i) stringP) = ToQuantum (ToComplex (func r) (func i)) stringP
 	
 type Qubit a = [Quantum a]
 
