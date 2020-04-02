@@ -1,85 +1,35 @@
 import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
-import Control.Applicative
+import Data.List
 
-import Data.Bifunctor (second)
-import Data.List (isPrefixOf)
+parser::String->Double->Double
+parser str x | (str == "x") = x
+			 | (take 4 str == "cos$") = cos$ parser (drop 4 str) x 
+			 | (take 4 str == "sin$") = sin$ parser (drop 4 str) x 
+			 | (take 4 str == "exp$") = exp$ parser (drop 4 str) x 
+			 | (take 4 str == "abs$") = abs$ parser (drop 4 str) x
+			 | (take 4 str == "sqr$") = sqrt$ parser (drop 4 str) x
+			 | (take 4 str == "log$") = log$ parser (drop 4 str) x
+			 | (take 5 str == "acos$") = acos$ parser (drop 5 str) x
+			 | (take 5 str == "asin$") = asin$ parser (drop 5 str) x
 
--- | Parser is a function that takes an input string and returns
--- a list of possible results (thus it is non-deterministic).
--- Each result is a pair of the rest of the input and the value
--- that has been parsed.
-newtype Parser a = Parser { unParser :: String -> [(String, a)] }
+funcParse::String->Double->Double->Double
+funcParse str x y | (str == "+") = x + y 		
+				  | (str == "-") = x - y 
+				  | (str == "/") = x / y 
+				  | (str == "*") = x * y 
 
--- | Parser as a functor. It maps the function over parsed values.
-instance Functor Parser where
-  fmap f (Parser p) = Parser (\b -> map (second f) (p b))
+vertices str start end ychange yfunc = map p2 $ [(x,funcParse yfunc ychange (parser str x))|x <- [start, (start+0.01)..end]] where
 
--- | Parser as an applicative functor. It "unwraps" the functions
--- and values and "wraps back" the result of applying these functions
--- to values.
-instance Applicative Parser where
-  pure x = Parser (\s -> [(s, x)])
-  pf <*> px = Parser (\s -> [ (sx, f x) | (sf, f) <- unParser pf $ s,
-                                          (sx, x) <- unParser px $ sf])
-
--- | Parser as an alternative. It concatenates the lists of results.
--- The neutral element is the empty parser that always fails.
-instance Alternative Parser where
-  empty = Parser (const [])
-  px <|> py = Parser (\s -> unParser px s ++ unParser py s)
-
--- | Parse the whole input to some value. It only succeeds on
--- deterministic result with no input left.
-parseString :: String -> Parser a -> Maybe a
-parseString s (Parser p) = case p s of
-    [("", val)] -> Just val
-    _           -> Nothing
-
--- | Parse the first input char if it satisfies given predicate.
-predP :: (Char -> Bool) -> Parser Char
-predP p = Parser f
-  where
-    f "" = []
-    f (c : cs) | p c = [(cs, c)]
-               | otherwise = []
-
--- | Parse the first input char if it matches given char.
-charP :: Char -> Parser Char
-charP = predP . (==)
-
--- | Parse the whole string from the input.
-stringP :: String -> Parser String
-stringP s = Parser f
-  where
-    f s' | s == s' = [("", s)]
-         | otherwise = []
-
--- | Skip all input chars while they satisfy given predicate.
-skip :: (Char -> Bool) -> Parser ()
-skip p = Parser (\s -> [(dropWhile p s, ())])
-
--- | Parse given prefix from input string.
-prefixP :: String -> Parser String
-prefixP s = Parser f
-  where
-    f input = if s `isPrefixOf` input
-                then [(drop (length s) input, s)]
-                else []
-
--- | Skip given prefix string.
-skipString :: String -> Parser ()
-skipString s = () <$ prefixP s
---Парсер честно сворован с хабра, за выходные допилю все под функции
-vertices = map p2 $ [(x, cos(x)) | x <- [(-3*pi),(-3*pi + 0.001) .. 3*pi]]
-example::Diagram B
-example = fromVertices vertices # strokeLine
+example::String->Double->Double->Double->String->Diagram B
+example str start end ychange yfunc = fromVertices (vertices str start end ychange yfunc) # strokeLine
 --        # lc red # center # pad 1.1
 
 main::IO()
-main = do mainWith example
---	str <- getLine
---	getValue str
---	putStrLn str
--- Работа с самими функциями
-
+main = do 
+	ychange <- getLine
+	yfunc <- getLine
+	str <- getLine
+	start <- getLine
+	end <- getLine
+	mainWith (example str (read start::Double) (read end::Double) (read ychange::Double) yfunc)
