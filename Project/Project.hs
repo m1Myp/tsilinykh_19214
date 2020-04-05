@@ -8,28 +8,38 @@ parser str x | (str == "x") = x
 			 | (take 4 str == "sin$") = sin$ parser (drop 4 str) x 
 			 | (take 4 str == "exp$") = exp$ parser (drop 4 str) x 
 			 | (take 4 str == "abs$") = abs$ parser (drop 4 str) x
-			 | (take 4 str == "sqr$") = sqrt$ parser (drop 4 str) x
+			 | (take 5 str == "sqrt$") = sqrt$ parser (drop 5 str) x
 			 | (take 4 str == "log$") = log$ parser (drop 4 str) x
 			 | (take 5 str == "acos$") = acos$ parser (drop 5 str) x
 			 | (take 5 str == "asin$") = asin$ parser (drop 5 str) x
+			 | otherwise = read str::Double
+--			 | (take 3 str == "tg$") = cos (parser (drop 3 str) x) / sin (parser (drop 3 str) x)
 
-funcParse::String->Double->Double->Double
-funcParse str x y | (str == "+") = x + y 		
-				  | (str == "-") = x - y 
-				  | (str == "/") = x / y 
-				  | (str == "*") = x * y 
+arithmetic::[Double]->String->[Double]->[Double]
+arithmetic  [] _ [] = []
+arithmetic arrx str arry | (str == "+") = ((head arrx)+(head arry)) : (arithmetic (drop 1 arrx) str (drop 1 arry))
+						 | (str == "-") = ((head arrx)-(head arry)) : (arithmetic (drop 1 arrx) str (drop 1 arry))
+					   	 | (str == "/") = ((head arrx)/(head arry)) : (arithmetic (drop 1 arrx) str (drop 1 arry))
+						 | (str == "*") = ((head arrx)*(head arry)) : (arithmetic (drop 1 arrx) str (drop 1 arry))
+							 
 
-vertices str start end ychange yfunc = map p2 $ [(x,funcParse yfunc ychange (parser str x))|x <- [start, (start+0.01)..end]] where
+firstNum::[String]->[Double]->[Double]
+firstNum str range = [parser(unwords str) x |x <- range]
 
-example::String->Double->Double->Double->String->Diagram B
-example str start end ychange yfunc = fromVertices (vertices str start end ychange yfunc) # strokeLine
+repeater::[Double]->[String]->[Double]->[Double]
+repeater num str range | ((length str) > 0) = repeater (arithmetic num (unwords(take 1 str)) [(parser(unwords(take 1(drop 1 str))) x)|x<-range]) (drop 2 str) range
+					   | ((length str) == 0) = num
+				 
+vertices str range num = map p2 $ (zip range (repeater num str range))
+
+example::[String]->[Double]->Diagram B
+example str range = fromVertices (vertices (drop 1 str) range (firstNum (take 1 str) range)) # strokeLine
 --        # lc red # center # pad 1.1
 
 main::IO()
 main = do 
-	ychange <- getLine
-	yfunc <- getLine
 	str <- getLine
 	start <- getLine
 	end <- getLine
-	mainWith (example str (read start::Double) (read end::Double) (read ychange::Double) yfunc)
+	mainWith (example (words str) [(read start::Double), ((read start::Double) + 0.01)..(read end::Double)])
+
